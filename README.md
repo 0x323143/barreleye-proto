@@ -11,7 +11,7 @@ $ npm install swagger -g
 $ npm install
 
 editor
-$ swagger project editor
+$ swagger project edit
 
 $ swagger project start
 ```
