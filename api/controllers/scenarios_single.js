@@ -11,7 +11,7 @@
   It is a good idea to list the modules that your application depends on in the package.json in the project root
  */
 var util = require('util');
-
+var SingleScenario = require('../models/model_single_scenario');
 /*
  Once you 'require' a module you can reference the things that it exports.  These are defined in module.exports.
 
@@ -25,9 +25,9 @@ var util = require('util');
   we specify that in the exports of this module that 'hello' maps to the function named 'hello'
  */
 module.exports = {
-  oper_post: addSingleScenario,
-  oper_get: getSingleScenarioById,
-  oper_put: setSingleScenarioById
+  addSingleScenario: addSingleScenario,
+  getSingleScenarioById: getSingleScenarioById,
+  setSingleScenarioById: setSingleScenarioById
 };
 
 /*
@@ -37,16 +37,55 @@ module.exports = {
   Param 2: a handle to the response object
  */
 function addSingleScenario(req, res) {
-  console.log('addSingleScenario');
-  res.json({ code: 0, message: 'addSingleScenario' });
+  var scenario = new SingleScenario();
+  scenario.s_name = req.body.s_name;
+  scenario.s_type = req.body.s_type;
+  scenario.s_pattern = req.body.s_pattern;
+  scenario.s_apply_type = req.body.s_apply_type;
+  scenario.s_created_time = (new Date).getTime();
+
+  scenario.save(function (err, scen) {
+    if (err) {
+      res.send(err);
+      return;
+    } else {
+      res.json(scen);
+    }
+  });
 }
 
 function getSingleScenarioById(req, res) {
-  console.log('getSingleScenarioById');
-  res.json({ code: 1, message: 'getSingleScenarioById' });
+  SingleScenario.findOne({ "s_id": req.swagger.params.s_id.value }, function(err, scen) {
+    if (err) {
+      console.log(typeof req.swagger.params.s_id.value);
+      console.log(err);
+      res.send(err);
+      return;
+    } else {
+      res.json(scen);
+    }
+  });
 }
 
 function setSingleScenarioById(req, res) {
-  console.log('setSingleScenarioById');
-  res.json({ code: 2, message: 'setSingleScenarioById' });
+  SingleScenario.findOne({ "s_id": req.swagger.params.s_id.value }, function(err, scen) {
+    if (err) {
+      res.send(err);
+      return;
+    } else {
+      scen.s_name = req.body.s_name;
+      scen.s_type = req.body.s_type;
+      scen.s_pattern = req.body.s_pattern;
+      scen.s_apply_type = req.body.s_apply_type;
+      scen.s_created_time = (new Date).getTime();
+      scen.save(function (err, _scen){
+        if (err) {
+          res.send(err);
+          return;
+        } else {
+          res.json(scen);
+        }
+      });
+    }
+  });
 }

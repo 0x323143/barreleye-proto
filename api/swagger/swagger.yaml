@@ -22,7 +22,7 @@ produces:
 securityDefinitions:
   api_key:
     type: apiKey
-    name: access_token
+    name: api_key
     in: header
 ################################################################################
 #                                  Paths                                       #
@@ -32,7 +32,9 @@ paths:
     x-swagger-router-controller : scenarios_single
     post:
       description: Create new singel scenario object
-      operationId: oper_post
+      operationId: addSingleScenario
+      security:
+        - api_key: []
       parameters:
         - in: body
           name: body
@@ -47,19 +49,17 @@ paths:
             $ref: "#/definitions/SingleScenarioResponse"
         "400":
           description: Invalid scenario supplied
-      # security:
-      #   - api_key: []
   /scenarios/single/{s_id}:
     x-swagger-router-controller : scenarios_single
     get:
       description: Returns 'Single scenario' object by id to the caller
-      operationId: oper_get
+      operationId: getSingleScenarioById
       parameters:
         - name: s_id
           in: path
           description: The id of the single scenario
           required: true
-          type: string
+          type: integer
       responses:
         "200":
           description: Success
@@ -69,11 +69,11 @@ paths:
           description: Scenario not found
         "400":
           description: Invalid scenario supplied
-      # security:
-      #   - api_key: []
+      security:
+       - api_key: []
     put:
       description: Update 'Single scenario' object
-      operationId: oper_put
+      operationId: setSingleScenarioById
       parameters:
         - in: body
           name: body
@@ -84,7 +84,7 @@ paths:
         - in: path
           name: s_id
           required: true
-          type: string
+          type: integer
       responses:
         "200":
           description: Success
@@ -94,8 +94,8 @@ paths:
           description: Scenario not found
         "400":
           description: Invalid scenario supplied
-      # security:
-      #   - api_key: []
+      security:
+       - api_key: []
   /swagger:
     x-swagger-pipe: swagger_raw
 ################################################################################
@@ -104,6 +104,8 @@ paths:
 definitions:
   SingleScenario:
     type: object
+    required:
+      - s_name
     properties:
       s_name:
         type: string
@@ -125,7 +127,7 @@ definitions:
     type: object
     properties:
       s_id:
-        type: string
+        type: integer
       s_name:
         type: string
       s_type:
@@ -145,6 +147,7 @@ definitions:
       s_created_time:
         description: Epoch time (ms)
         type: integer
+        format: int64
   ErrorResponse:
     type: object
     properties:
